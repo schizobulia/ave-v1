@@ -1,4 +1,5 @@
 import { Command } from "@tauri-apps/api/shell";
+import Swal from 'sweetalert2';
 
 /**
  * Parse progress line from ffmpeg stderr
@@ -75,19 +76,21 @@ class FFmpegVideo {
   private progressCb: void;
   private child: null;
 
-  constructor(file: string, output: string, meta: any) {
+  constructor(file: string, output: string, meta: any, id: number) {
     this.ffmpeg = null;
     this.input = file;
     this.output = output;
     this.meta = meta;
-    this.taskId = new Date().getTime();
+    this.taskId = id
   }
   /**
    * 配置转换参数
    * @param arg 
    */
   conversionVideo(arg: Array<string>) {
-    let args = ["-i", this.input]
+    let args = [
+      "-i", this.input
+    ]
     if (arg.length && arg[0]) {
       args = args.concat(arg)
     }
@@ -95,20 +98,18 @@ class FFmpegVideo {
     ffmpeg.on("close", async ({ code }) => {
       this.status = 1;
       if (code) {
-        console.log("转换失败");
+        Swal.fire('转换失败')
       } else {
         this.progressData(100);
       }
     });
   
     ffmpeg.on("error", async (error) => {
-      // await message("文件转换错误");
-      console.error(`command error: "${error}"`);
+      Swal.fire("文件转换错误");
     });
   
-    ffmpeg.stdout.on("data", (line) =>
-      console.log(line)
-    );
+    ffmpeg.stdout.on("data", (line) =>{
+    });
   
     ffmpeg.stderr.on("data", (line) => {
       const progress = parseProgressLine(line);

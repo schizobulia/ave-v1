@@ -37,6 +37,7 @@
     "@smui/list": "^6.0.0",
     "@smui/circular-progress": "^6.0.0",
     "@smui/icon-button": "^6.0.0",
-    "svelte-video-player": "^1.2.5"
+    "sweetalert2": "^11.4.26",
+    "dplayer": "^1.26.0"
   }
 }

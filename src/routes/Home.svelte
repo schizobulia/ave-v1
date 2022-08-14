@@ -5,18 +5,19 @@
   import List, { Item, Text, Separator } from "@smui/list";
   import { push } from "svelte-spa-router";
   import Select, { Option } from "@smui/select";
-  import IconButton from '@smui/icon-button';
+  import IconButton from "@smui/icon-button";
   import Dialog, { Title, Content, Actions, Header } from "@smui/dialog";
   import Textfield from "@smui/textfield";
-  import { convertFileSrc } from '@tauri-apps/api/tauri';
+  import { convertFileSrc } from "@tauri-apps/api/tauri";
   import { downloadDir } from "@tauri-apps/api/path";
   import { FFmpegVideo } from "../utils/ffmpeg";
   import { basename, join } from "@tauri-apps/api/path";
   import { getMetadata } from "../utils/ffprobe";
   import { getArgByStr } from "../utils/tool";
-  import VideoPlayer from 'svelte-video-player';
+  import DPlayer from "dplayer";
+  import Swal from "sweetalert2";
   let videoExts = [
-    "AVI",
+    "MP4",
     "MPEG",
     "WEBM",
     "MOV",
@@ -47,17 +48,19 @@
     "M2TS",
     "WTV",
     "M2V",
-    "MP4",
+    "AVI"
   ];
   let openDialog = false;
   let videoExt = "";
   let value = "";
   let downloadDirPath = "";
-  let videoPlayerOpen = false
-  let videoPlayerSource = []
+  let videoPlayerOpen = false;
+  let videoPlayerSource = "";
   let filesProgress = [
     // { file: 'xxx', progress: 0.3, taskId: new Date().getTime() }
   ];
+  let DPlayerDom;
+  let dpPlayer;
 
   function select_video() {
     if (!videoExt) {
@@ -76,22 +79,29 @@
   async function start_ffmpeg(files: Array<string>) {
     for (let index = 0; index < files.length; index++) {
       const file = files[index];
+      const id = new Date().getTime();
+      filesProgress.push({
+        file: file,
+        progress: 0,
+        taskId: id,
+        child: null,
+      });
       let outputFile = downloadDirPath + (await basename(file));
       // @ts-ignore
       await getMetadata(file, async (meta: any) => {
         outputFile =
           outputFile.substring(0, outputFile.lastIndexOf(".")) +
           `.${videoExt.toLowerCase()}`;
-        const ffmpeg = new FFmpegVideo(file, outputFile, meta);
-        filesProgress.push({
-          file: file,
-          progress: 0,
-          taskId: ffmpeg.taskId,
-          child: ffmpeg,
-        });
+        const ffmpeg = new FFmpegVideo(file, outputFile, meta, id);
+        const taskIndex = getTaskVideo(ffmpeg.taskId);
+        if (filesProgress[taskIndex]) {
+          filesProgress[taskIndex].child = ffmpeg;
+        }
         ffmpeg.conversionVideo(getArgByStr(value));
         // @ts-ignore
-        await ffmpeg.start(async (progress: number, taskId: number, output: string) => {
+        await ffmpeg.start(
+          // @ts-ignore
+          async (progress: number, taskId: number, output: string) => {
             const taskIndex = getTaskVideo(taskId);
             if (filesProgress[taskIndex]) {
               filesProgress[taskIndex].progress = Number(progress) / 100;
@@ -131,12 +141,28 @@
     const taskIndex = getTaskVideo(id);
     if (filesProgress[taskIndex] && filesProgress[taskIndex].child.status) {
       const playerFile = await join(downloadDirPath, file);
-      videoPlayerSource = [convertFileSrc(playerFile)]
-      videoPlayerOpen = true
+      videoPlayerSource = convertFileSrc(playerFile);
+      videoPlayerOpen = true;
+      player(videoPlayerSource);
       // push(encodeURI(`/player?file=${playerFile}`));
     } else {
-      console.log("转换未结束");
+      Swal.fire({
+        title: "转换未结束",
+        showConfirmButton: false,
+        timer: 1500,
+      });
     }
+  }
+
+  function player(url: string) {
+    dpPlayer = new DPlayer({
+      container: DPlayerDom,
+      screenshot: true,
+      video: {
+        url: url
+      }
+    });
+    dpPlayer.fullScreen.request('web');
   }
   init();
 </script>
@@ -233,7 +259,6 @@
       </Button>
     </Actions>
   </Dialog>
-
   <Dialog
     bind:open={videoPlayerOpen}
     fullscreen
@@ -241,11 +266,18 @@
     aria-describedby="fullscreen-content"
   >
     <Header>
-      <Title id="fullscreen-title">视频播放</Title>
-      <IconButton action="close" class="material-icons">x</IconButton>
+      <Title id="fullscreen-title">视频播放(因为播放的实现是基于web 部分视频编码无法播放)</Title>
+      <IconButton
+        action="close"
+        class="material-icons"
+        on:click={() => {
+          videoPlayerOpen = false;
+          dpPlayer.destroy();
+        }}>x</IconButton
+      >
     </Header>
-    <Content id="fullscreen-content">
-      <VideoPlayer source={videoPlayerSource}  width="500" height="320" />
+    <Content id="fullscreen-content" style="max-height: 350px;">
+      <div bind:this={DPlayerDom} width="500" height="320" />
     </Content>
   </Dialog>
 </main>

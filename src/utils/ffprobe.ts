@@ -1,4 +1,5 @@
 import { Command } from "@tauri-apps/api/shell";
+import Swal from 'sweetalert2';
 
 async function getMetadata (input: string, cb: void) {
   let res: string = "";
@@ -8,12 +9,17 @@ async function getMetadata (input: string, cb: void) {
     "-show_format"
   ]);
   ffprobe.on("close", async ({ code }) => {
-    var data = parseFfprobeOutput(res);
-    // @ts-ignore
-    void cb(data)
+    if (code) {
+      Swal.fire("获取文件信息错误");
+    } else {
+      var data = parseFfprobeOutput(res);
+      // @ts-ignore
+      void cb(data)
+    }
   });
 
   ffprobe.on("error", async (error) => {
+    Swal.fire("获取文件信息错误");
   });
 
   ffprobe.stdout.on("data", (line: string) => {
