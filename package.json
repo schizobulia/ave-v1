@@ -29,14 +29,14 @@
   "dependencies": {
     "@tauri-apps/api": "^1.0.2",
     "sirv-cli": "^2.0.0",
-    "@smui/button": "^6.0.0",
+    "@smui/button": "^6.1.0",
     "svelte-spa-router": "^3.2.0",
-    "@smui/select": "^6.0.0",
-    "@smui/dialog": "^6.0.0",
-    "@smui/textfield": "^6.0.0",
-    "@smui/list": "^6.0.0",
-    "@smui/circular-progress": "^6.0.0",
-    "@smui/icon-button": "^6.0.0",
+    "@smui/select": "^6.1.0",
+    "@smui/dialog": "^6.1.0",
+    "@smui/textfield": "^6.1.0",
+    "@smui/list": "^6.1.0",
+    "@smui/circular-progress": "^6.1.0",
+    "@smui/icon-button": "^6.1.0",
     "sweetalert2": "^11.4.26",
     "dplayer": "^1.26.0"
   }

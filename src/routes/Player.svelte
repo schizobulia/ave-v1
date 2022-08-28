@@ -1,7 +1,7 @@
 <script lang="ts">
   import { querystring } from 'svelte-spa-router'
   import { convertFileSrc } from '@tauri-apps/api/tauri';
-  import VideoPlayer from 'svelte-video-player';
+  // import VideoPlayer from 'svelte-video-player';
 
   const source = [];
   querystring.subscribe((value) => {
@@ -12,5 +12,5 @@
 <a href="/">Home</a>
 <div style="margin-top: 10px;"></div>
 {#if source.length}
-  <VideoPlayer {source}  width="500" height="320" />
+  <!-- <VideoPlayer {source}  width="500" height="320" /> -->
 {/if}
