@@ -100,7 +100,7 @@ class HomePage extends React.Component {
       res += '-crf 51'
     }
 
-    return value + ' ' + res + ' '
+    return ' ' + res + ' ' + value
   }
 
   stopTask(id: number) {
