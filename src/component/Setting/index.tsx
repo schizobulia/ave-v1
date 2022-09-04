@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Modal, Col, Row, Select } from 'antd';
+// @ts-ignore
 import Terminal from 'react-console-emulator';
 import SettingIcon from '../../assets/settings.svg';
 import TerminalIcon from '../../assets/terminal.svg';
@@ -20,7 +21,6 @@ for (let i = 0; i < exts.length; i++) {
 class Setting extends React.Component {
   constructor(props: any) {
     super(props)
-    // this.terminal = React.createRef()
     this.state = {
       visible: false,
       quality: '中',
