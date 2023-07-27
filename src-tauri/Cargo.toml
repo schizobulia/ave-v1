@@ -17,7 +17,7 @@ tauri-build = { version = "1.0.4", features = [] }
 [dependencies]
 serde_json = "1.0"
 serde = { version = "1.0", features = ["derive"] }
-tauri = { version = "1.0.5", features = ["notification-all", "path-all", "process-command-api", "protocol-asset", "shell-execute", "shell-open", "shell-sidecar"] }
+tauri = { version = "1.0.5", features = [ "updater", "dialog-open", "notification-all", "path-all", "process-command-api", "protocol-asset", "shell-execute", "shell-open", "shell-sidecar"] }
 nfd2 = "0.2.3"
 
 [features]

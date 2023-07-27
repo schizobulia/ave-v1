@@ -9,12 +9,12 @@
   import Dialog, { Title, Content, Actions, Header } from "@smui/dialog";
   import Textfield from "@smui/textfield";
   import { convertFileSrc } from "@tauri-apps/api/tauri";
-  import { downloadDir } from "@tauri-apps/api/path";
+  import { open } from '@tauri-apps/api/dialog';
   import { FFmpegVideo } from "../utils/ffmpeg";
-  import { basename, join } from "@tauri-apps/api/path";
+  import { basename, join, downloadDir, sep, appConfigDir } from "@tauri-apps/api/path";
   import { getMetadata } from "../utils/ffprobe";
   import { getArgByStr } from "../utils/tool";
-  import DPlayer from "dplayer";
+  import { FFPlayer } from "../utils/ffplay";
   import Swal from "sweetalert2";
   let videoExts = [
     "MP4",
@@ -51,16 +51,13 @@
     "AVI"
   ];
   let openDialog = false;
-  let videoExt = "";
+  let videoExt = videoExts[0];
   let value = "";
   let downloadDirPath = "";
-  let videoPlayerOpen = false;
-  let videoPlayerSource = "";
   let filesProgress = [
     // { file: 'xxx', progress: 0.3, taskId: new Date().getTime() }
   ];
-  let DPlayerDom;
-  let dpPlayer;
+  let AVE_DOWNLOADDIR_KEY = 'ave_downloadDirPath'
 
   function select_video() {
     if (!videoExt) {
@@ -68,7 +65,7 @@
       return;
     }
     invoke("select_video", { videoExts: videoExts.join(",") })
-      .then((files: Array<string>) => {
+      .then(async (files: Array<string>) => {
         start_ffmpeg(files);
       })
       .catch((err) => {
@@ -86,7 +83,7 @@
         taskId: id,
         child: null,
       });
-      let outputFile = downloadDirPath + (await basename(file));
+      let outputFile = downloadDirPath + sep + (await basename(file));
       // @ts-ignore
       await getMetadata(file, async (meta: any) => {
         outputFile =
@@ -120,13 +117,18 @@
   }
 
   function init() {
-    downloadDir()
+    const dir = window.localStorage.getItem(AVE_DOWNLOADDIR_KEY);
+    if (dir) {
+      downloadDirPath = decodeURIComponent(dir)
+    } else {
+      downloadDir()
       .then((data) => {
         downloadDirPath = data;
       })
       .catch((err) => {
         console.error(err);
       });
+    }
   }
 
   function deltetTask(id: number) {
@@ -141,10 +143,7 @@
     const taskIndex = getTaskVideo(id);
     if (filesProgress[taskIndex] && filesProgress[taskIndex].child.status) {
       const playerFile = await join(downloadDirPath, file);
-      videoPlayerSource = convertFileSrc(playerFile);
-      videoPlayerOpen = true;
-      player(videoPlayerSource);
-      // push(encodeURI(`/player?file=${playerFile}`));
+      new FFPlayer(playerFile).play();
     } else {
       Swal.fire({
         title: "转换未结束",
@@ -154,23 +153,24 @@
     }
   }
 
-  function player(url: string) {
-    dpPlayer = new DPlayer({
-      container: DPlayerDom,
-      screenshot: true,
-      video: {
-        url: url
-      }
-    });
-    dpPlayer.fullScreen.request('web');
-  }
   init();
+
+  async function openDownloadDirPath () {
+    const selectedPath = await open({
+      directory: true,
+      multiple: false,
+      defaultPath: downloadDirPath,
+    });
+    if (typeof selectedPath === 'string') {
+      downloadDirPath = selectedPath + '/';
+      window.localStorage.setItem(AVE_DOWNLOADDIR_KEY, encodeURIComponent(downloadDirPath));
+    }
+  }
 </script>
 
 <main>
   <h1>Hello Ave!</h1>
   <div style="margin-top: 40px;" />
-  <!-- on:click={() => push('/player')} -->
   <Button variant="raised" class="button-shaped-round" on:click={select_video}>
     选择视频文件
   </Button>
@@ -227,7 +227,7 @@
               /></svg
             >
           </div>
-          <Text on:click={() => player_video(item.file, item.taskId)}
+          <Text style="cursor: pointer;" on:click={() => player_video(item.file, item.taskId)}
             >{item.file}</Text
           >
           <div
@@ -243,7 +243,9 @@
       {/each}
     </List>
   </div>
-  <div style="position: fixed; bottom: 20px; right: 10px;">
+  <div style="position: fixed; bottom: 20px; right: 10px;cursor: pointer;width: 450px; overflow: hidden;text-align: right;height: 20px; word-break: break-all;
+  text-overflow: ellipsis;white-space: nowrap;"
+    on:click={openDownloadDirPath}>
     文件保存地址: {downloadDirPath}
   </div>
   <Dialog
@@ -258,27 +260,6 @@
         <Label>确认</Label>
       </Button>
     </Actions>
-  </Dialog>
-  <Dialog
-    bind:open={videoPlayerOpen}
-    fullscreen
-    aria-labelledby="fullscreen-title"
-    aria-describedby="fullscreen-content"
-  >
-    <Header>
-      <Title id="fullscreen-title">视频播放(因为播放的实现是基于web 部分视频编码无法播放)</Title>
-      <IconButton
-        action="close"
-        class="material-icons"
-        on:click={() => {
-          videoPlayerOpen = false;
-          dpPlayer.destroy();
-        }}>x</IconButton
-      >
-    </Header>
-    <Content id="fullscreen-content" style="max-height: 350px;">
-      <div bind:this={DPlayerDom} width="500" height="320" />
-    </Content>
   </Dialog>
 </main>
 

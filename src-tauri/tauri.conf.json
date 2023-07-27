@@ -9,7 +9,7 @@
   },
   "package": {
     "productName": "ave",
-    "version": "0.1.0"
+    "version": "0.1.1"
   },
   "tauri": {
     "allowlist": {
@@ -25,12 +25,16 @@
         "open": "",
         "scope": [
           { "name": "bin/ffmpeg", "args": true, "sidecar": true },
-          { "name": "bin/ffprobe", "args": true, "sidecar": true }
+          { "name": "bin/ffprobe", "args": true, "sidecar": true },
+          { "name": "bin/ffplay", "args": true, "sidecar": true }
         ]
       },
       "protocol": {
         "asset": true,
         "assetScope": ["*"]
+      },
+      "dialog": {
+        "open": true
       }
     },
     "bundle": {
@@ -42,7 +46,8 @@
       },
       "externalBin": [
         "bin/ffmpeg",
-        "bin/ffprobe"
+        "bin/ffprobe",
+        "bin/ffplay"
       ],
       "icon": [
         "icons/32x32.png",
@@ -73,7 +78,15 @@
       "csp": "default-src: 'self'; media-src 'self' asset:"
     },
     "updater": {
-      "active": false
+      "active": true,
+      "endpoints": [
+        "https://www.jcbsb.com/soft/ave/update.json"
+      ],
+      "dialog": true,
+      "pubkey": "xxxx",
+      "windows": {
+        "installMode": "passive"
+      }
     },
     "windows": [
       {

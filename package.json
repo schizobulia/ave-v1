@@ -37,7 +37,6 @@
     "@smui/list": "^6.1.0",
     "@smui/circular-progress": "^6.1.0",
     "@smui/icon-button": "^6.1.0",
-    "sweetalert2": "^11.4.26",
-    "dplayer": "^1.26.0"
+    "sweetalert2": "^11.4.26"
   }
 }

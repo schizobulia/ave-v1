@@ -1,0 +1,11 @@
+{
+  "version": "v0.1.1",
+  "notes": "添加自动更新",
+  "pub_date": "2023-07-27T02:45:22.215Z",
+  "platforms": {
+    "darwin-aarch64": {
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVUcS90ZDBZdFRKbGhNdVBWZWU1dmQ3bTZCQ0RLR0xPTGwzN1p0MW14MG92Ykgra0hSTVJNRzVJQ1c2ejg1VHc0VWFOcHJWQ3FWeStNNzczL3N2M1R0Z0treDBCV1ROcUFrPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNjkwNDI1NjcwCWZpbGU6YXZlLmFwcC50YXIuZ3oKc2djK3hZVlVlK0N2emNaMzh5VlkrOEpxZmdqTzdUM2lmeENDWnYxTFMzbWxNeHVMVDBwZlgxNjlRemt4RWhCSTNwMU8vUFk1RUUxVFBIRzFiTEZWQkE9PQo=",
+      "url": "https://www.jcbsb.com/soft/ave/0.1.1/ave.app.tar.gz"
+    }
+  }
+}
