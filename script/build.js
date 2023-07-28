@@ -16,6 +16,9 @@ function main () {
   // 2、yarn tauri build
   const output = child_process.execSync('yarn tauri build')
   console.log(output)
+  if (process.platform === 'linux') {
+    return // linux目前无法设置自动更新
+  }
   // 3、获取xxx.sig文件内容
   const mac_sign_file = path.join(__dirname, '../', 'src-tauri/target/release/bundle/macos/ave.app.tar.gz.sig')
   const mac_sign_file_data = fs.readFileSync(mac_sign_file).toString()

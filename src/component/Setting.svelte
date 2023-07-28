@@ -44,6 +44,7 @@
   import { appConfigDir } from "@tauri-apps/api/path";
   import { open } from '@tauri-apps/api/dialog';
   import { checkUpdate, installUpdate } from '@tauri-apps/api/updater';
+  import Swal from "sweetalert2";
   let isOpen = false;
   let qualityValArr = ['高', '中', '低']
   let qualityVal = '高'
@@ -88,6 +89,12 @@
     if (update.shouldUpdate) {
       console.log(`下载更新 ${update.manifest?.version}, ${update.manifest?.date}, ${update.manifest.body}`);
       await installUpdate();
+    } else {
+      Swal.fire({
+        title: "已经是最新版",
+        showConfirmButton: false,
+        timer: 1500,
+      });
     }
   }
 </script>

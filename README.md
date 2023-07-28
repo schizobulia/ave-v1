@@ -5,6 +5,8 @@
 - 下载编译好[ffmpeg的二进制文件](https://ffmpeg.org/download.html)到src-tauri/bin目录下
 - 修改ffmpeg名称, 在yarn taurid dev时会提示应该怎么修改
 
+### 备注
+- 项目中尽可能不能使用网络，所有操作尽可能在本地完成
 ### 快速开始
 
 ```Get started
@@ -21,8 +23,14 @@ yarn tauri dev
 + 打包时自动将ffmpeg打包进项目中
 + 实现视频播放功能
 + 下载地址可以打开
++ 自动更新
 ### 未实现功能
 + 发布v1版本(x)
++ rust和yarn国内镜像
++ 合并pdf
++ 图片合并
++ 背景去除
++ 国际化
 
 ### 下载地址
 - [alpha版本](http://gofile.me/5ZhEh/v8RqfbzIe)

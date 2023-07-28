@@ -59,18 +59,24 @@
   ];
   let AVE_DOWNLOADDIR_KEY = 'ave_downloadDirPath'
 
-  function select_video() {
+  async function select_video() {
     if (!videoExt) {
       openDialog = true;
       return;
     }
-    invoke("select_video", { videoExts: videoExts.join(",") })
-      .then(async (files: Array<string>) => {
-        start_ffmpeg(files);
-      })
-      .catch((err) => {
-        console.error(err);
-      });
+    const arr = videoExts.map((ele: string) => {
+      return ele.toLowerCase();
+    });
+    const selectedPath = await open({
+      multiple: true,
+      filters: [{
+        name: 'Video',
+        extensions: [...videoExts, ...arr]
+      }]
+    });
+    if (Array.isArray(selectedPath)) {
+      start_ffmpeg(selectedPath);
+    }
   }
 
   async function start_ffmpeg(files: Array<string>) {
