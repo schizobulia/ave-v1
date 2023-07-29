@@ -1,0 +1,1 @@
+export const AVE_DOWNLOADDIR_KEY = "ave_downloadDirPath"

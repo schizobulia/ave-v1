@@ -1,10 +1,15 @@
 const fs = require('fs')
 const path = require('path')
 const child_process = require('child_process')
+const urlConfig = require('../config/index')
 
 const VERSION = '0.1.2'
 const NOTES = '更新内容:'
 
+/**
+ * 本地打包实现，目前不在使用
+ * @returns 
+ */
 function main () {
   // 1、修改src-tauri/tauri.conf.json中的版本号和pubkey
   const tauri_json = path.join(__dirname, '../', 'src-tauri/tauri.conf.json')
@@ -30,15 +35,11 @@ function main () {
     platforms: {
       "darwin-aarch64": {
         "signature": mac_sign_file_data,
-        "url": `https://www.jcbsb.com/soft/ave/${VERSION}/ave.app.tar.gz`
+        "url": `${urlConfig.serviceUrl}/ave.app.tar.gz`
       }
     }
   }
   fs.writeFileSync('update.json', JSON.stringify(update_json))
-}
-
-function uploadFfmpeg () {
-  
 }
 
 main()

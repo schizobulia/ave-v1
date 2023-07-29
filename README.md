@@ -12,6 +12,8 @@
 ```Get started
 yarn install
 
+chmod u+x ave_java-aarch64-apple-darwin
+
 yarn tauri dev
 ```
 
@@ -24,10 +26,9 @@ yarn tauri dev
 + 实现视频播放功能
 + 下载地址可以打开
 + 自动更新
++ 合并pdf
 ### 未实现功能
 + 发布v1版本(x)
-+ rust和yarn国内镜像
-+ 合并pdf
 + 图片合并
 + 背景去除
 + 国际化

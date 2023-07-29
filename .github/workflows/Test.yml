@@ -1,0 +1,42 @@
+name: Release
+
+on: [push, pull_request]
+
+jobs:
+  build-release:
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [macos-latest, windows-latest]
+    runs-on: ${{ matrix.platform }}
+    env:
+      ACTIONS_ALLOW_UNSECURE_COMMANDS: true
+      TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
+      TAURI_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
+      QINIU_ACCESS_KEY: ${{ secrets.QINIU_ACCESS_KEY }}
+      QINIU_SECRET_KEY: ${{ secrets.QINIU_SECRET_KEY }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Node.js setup
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Rust setup
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Rust Cache
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: ./src-tauri
+
+      - run: npm install
+
+      - run: node script/ffmpeg.js v0.0.6
+
+      - name: Build
+        uses: tauri-apps/tauri-action@v0
