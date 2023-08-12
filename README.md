@@ -34,7 +34,8 @@ yarn tauri dev
 + 国际化
 
 ### 下载地址
-- [alpha版本](http://gofile.me/5ZhEh/v8RqfbzIe)
+- [mac](http://ave.jcbsb.com/ave_x64.dmg)
+- [win](http://ave.jcbsb.com/ave_x64_en-US.msi)
 ### 部分代码参考来源:
 - [node-fluent-ffmpeg](https://github.com/fluent-ffmpeg/node-fluent-ffmpeg)
 - [ffmpegGUI](https://github.com/zhen-ke/ffmpegGUI)
