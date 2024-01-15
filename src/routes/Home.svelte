@@ -1,6 +1,7 @@
 <script lang="ts">
   import Video from '../component/Video.svelte';
   import Pdf from '../component/Pdf.svelte';
+  import ImgWatermark from '../component/ImgWatermark.svelte';
   import { showType } from '../store';
 
   let showTypeVal;
@@ -24,11 +25,21 @@
           <div class="ave-cell">PDF合并</div>
         </div>
       </div>
+      <div class="ave-layout">
+        <div class="ave-item" on:click={() => { showType.set('imgWatermark') } }>
+          <img src="static/video.png" alt="">
+          <div class="ave-cell">图片添加水印</div>
+        </div>
+        <div class="ave-item">
+        </div>
+      </div>
     </div>
   {:else if showTypeVal === 'video'}
     <Video></Video>
   {:else if showTypeVal === 'pdf'}
     <Pdf></Pdf>
+  {:else if showTypeVal === 'imgWatermark'}
+    <ImgWatermark></ImgWatermark>
   {/if}
 </main>
 

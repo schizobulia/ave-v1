@@ -4,6 +4,7 @@
   import Setting from "./component/Setting.svelte";
   import { AVE_DOWNLOADDIR_KEY } from "./config";
   import { downloadDirPathStore } from "./store";
+  import { downloadDir } from "@tauri-apps/api/path";
   function init() {
     // 初始化下载地址
     const dir = window.localStorage.getItem(AVE_DOWNLOADDIR_KEY);
