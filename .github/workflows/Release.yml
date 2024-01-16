@@ -4,17 +4,10 @@ on:
   push:
     tags:
     - 'v*'
-# on:
-#   push:
-#     branches:
-#       - '*'
-#   pull_request:
-#   workflow_dispatch:
 
 jobs:
   build-release:
     strategy:
-      fail-fast: false
       matrix:
         platform: [macos-latest, windows-latest]
     runs-on: ${{ matrix.platform }}
@@ -26,60 +19,38 @@ jobs:
       QINIU_SECRET_KEY: ${{ secrets.QINIU_SECRET_KEY }}
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
-
-      - name: Get version
-        id: get_version
-        run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
-
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Node.js setup
-        uses: actions/setup-node@v3
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
         with:
           node-version: 18
-
-      - name: Rust setup
-        uses: dtolnay/rust-toolchain@stable
-
-      - name: Rust Cache
-        uses: Swatinem/rust-cache@v2
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
         with:
           workspaces: ./src-tauri
-
       - run: npm install
-
-      - run: node script/ffmpeg.js v0.0.8
-
-      - name: Build
-        uses: tauri-apps/tauri-action@v0
-
-      # - run: npm run tauri build
-      # - run: node script/upload.js ${{ steps.get_version.outputs.VERSION }}
-      - run: node script/upload.js v0.0.8
+      - run: node script/ffmpeg.js ${{ github.ref_name }}
+      - uses: tauri-apps/tauri-action@v0
+      - run: node script/upload.js ${{ github.ref_name }}
+      - name: Upload release
+        if: github.event.release.tag_name
+        run: gh release upload ${{ github.event.release.tag_name }} src-tauri/target/release/bundle/${{ runner.os == 'Windows' && 'msi' || 'dmg' }}/ave_${{ github.ref_name }}_x64.${{ runner.os == 'Windows' && 'en-US.msi' || 'dmg' }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   updater:
+    needs: build-release
     runs-on: ubuntu-latest
-    needs: [build-release]
     env:
       ACTIONS_ALLOW_UNSECURE_COMMANDS: true
       QINIU_ACCESS_KEY: ${{ secrets.QINIU_ACCESS_KEY }}
       QINIU_SECRET_KEY: ${{ secrets.QINIU_SECRET_KEY }}
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
-      - name: Node.js setup
-        uses: actions/setup-node@v3
+      - uses: actions/setup-node@v3
         with:
           node-version: 18
-
-      - name: Get version
-        id: get_version
-        run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
-
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
+      - uses: actions/checkout@v3
       - run: npm install
-      - run: node script/publish.js v0.0.8
+      - run: node script/publish.js ${{ github.ref_name }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

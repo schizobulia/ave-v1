@@ -1,4 +1,4 @@
 module.exports = {
-  ffmpegZip: 'http://49.232.147.237',
+  ffmpegZip: 'https://github.com/eugeneware/ffmpeg-static/releases/latest/download/',
   serviceUrl: 'http://ave.jcbsb.com/'
 }

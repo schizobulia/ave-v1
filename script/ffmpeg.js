@@ -1,4 +1,3 @@
-const compressing = require('compressing');
 const fs= require('fs')
 const path = require('path')
 const urllib = require('urllib');
@@ -22,34 +21,45 @@ async function main () {
   } else if (platform === 'win32') {
     arg = 'win'
   }
-  const url = `${config.ffmpegZip}/ave/${arg}/ffmpeg.zip`
+  const ff = {
+    mac: ['ffmpeg-x86_64-apple-darwin', 'ffplay-x86_64-apple-darwin', 'ffprobe-x86_64-apple-darwin'],
+    win: ['ffmpeg-x86_64-pc-windows-msvc.exe', 'ffplay-x86_64-pc-windows-msvc.exe', 'ffprobe-x86_64-pc-windows-msvc.exe'],
+  }
+  const urlRes = ff[arg]
   const dir = path.join(__dirname, '../', 'src-tauri/bin')
-  await fs.mkdirSync(dir)
-  const tmp = path.join(dir, 'test.zip')
-  return urllib.request(url, {
-    streaming: true,
-    followRedirect: true,
-  })
-  .then(async result => {
-    const r = result.res.pipe(fs.createWriteStream(tmp))
-    r.on('finish', () => {
-      console.log('ffmpeg finish')
-      compressing.zip.uncompress(tmp, dir).then(() => {
-        console.log('unzip ffmpeg success');
-        getAveJava(arg, dir)
-        }).catch(console.error);
-    })
-    r.on('error', ((err) => {
-      console.error(err)
-    }))
-  })
-  .then(() => {
-    console.log('get ffmpeg done')
-  })
-  .catch(console.error);
+  if (!fs.existsSync(dir)) {
+    await fs.mkdirSync(dir)
+  }
+  for (let index = 0; index < urlRes.length; index++) {
+    const ele = urlRes[index]
+    const tmp = path.join(dir, ele)
+    const url = `${config.ffmpegZip}/${ele}`
+    await getFfmpeg(url, tmp)
+    console.log(ele)
+  }
+  await getAveJava(arg, dir)
 }
 
-function getAveJava(arg, dir) {
+async function getFfmpeg(url, tmp) {
+  return new Promise((resolve, reject) => {
+    urllib.request(url, {
+      streaming: true,
+      followRedirect: true,
+    }).then(async result => {
+      const r = result.res.pipe(fs.createWriteStream(tmp))
+      r.on('finish', () => {
+        resolve(r)
+      })
+      r.on('error', ((err) => {
+        reject(err)
+      }))
+    }).catch((err) => {
+      reject(err)
+    });
+  })
+}
+
+async function getAveJava(arg, dir) {
   let url = ''
   let name = ''
   if (arg === 'darwin' || arg === 'mac') {
@@ -66,19 +76,26 @@ function getAveJava(arg, dir) {
     name = 'ave_java-x86_64-pc-windows-msvc.exe'
     url = `https://github.com/schizobulia/ave_java/releases/download/v0.0.1/ave_java.exe`
   }
-  urllib.request(url, {
-    streaming: true,
-    followRedirect: true,
-  }).then((result) => {
-    const tmp = path.join(dir, name)
-    const r = result.res.pipe(fs.createWriteStream(tmp))
-    r.on('finish', () => {
-      console.log('ave_java finish')
-    })
-    r.on('error', ((err) => {
+  return new Promise((resolve, reject) => {
+    urllib.request(url, {
+      streaming: true,
+      followRedirect: true,
+    }).then((result) => {
+      const tmp = path.join(dir, name)
+      const r = result.res.pipe(fs.createWriteStream(tmp))
+      r.on('finish', () => {
+        console.log('ave_java finish')
+        resolve(true)
+      })
+      r.on('error', ((err) => {
+        console.error(err)
+        reject(err)
+      }))
+    }).catch((err) => {
       console.error(err)
-    }))
-  }).catch(console.error)
+      reject(err)
+    })
+  })
 }
 
 main()
