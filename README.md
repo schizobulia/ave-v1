@@ -9,12 +9,12 @@
 - 项目中尽可能不能使用网络，所有操作尽可能在本地完成
 ### 快速开始
 
-```Get started
-yarn install
+```bash
+$ yarn install
 
-chmod u+x ave_java-aarch64-apple-darwin
+$ node script/ffmpeg.js #下载需要的二进制文件
 
-yarn tauri dev
+$ yarn tauri dev
 ```
 
 ### 实现列表
@@ -29,15 +29,17 @@ yarn tauri dev
 + 合并pdf
 + 图片批量添加水印
 + 图片合并
++ 发布v1版本
 
 ### 未实现功能
-+ 发布v1版本(x)
+
 + 背景去除
 + 国际化
 
 ### 下载地址
-- [mac](http://ave.jcbsb.com/ave_x64.dmg)
-- [win](http://ave.jcbsb.com/ave_x64_en-US.msi)
+- [地址](https://github.com/schizobulia/ave-v1/releases/tag/v1.0.0)
+
 ### 部分代码参考来源:
 - [node-fluent-ffmpeg](https://github.com/fluent-ffmpeg/node-fluent-ffmpeg)
 - [ffmpegGUI](https://github.com/zhen-ke/ffmpegGUI)
+- ChatGPT

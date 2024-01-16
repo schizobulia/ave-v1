@@ -6,13 +6,16 @@ const config = require('../config/index')
 const platform = process.platform
 
 async function main () {
-  let tag = `${process.argv.slice(2)}`.substring(1)
-  const tauri_json = path.join(__dirname, '../', 'src-tauri/tauri.conf.json')
-  const tauri_json_data = JSON.parse(fs.readFileSync(tauri_json, 'utf-8'))
-  tauri_json_data.package.version = `${tag || '0.0.1'}`
-  // tauri_json_data.tauri.updater.endpoints = [config.serviceUrl + 'update.json']
-  fs.writeFileSync(tauri_json, JSON.stringify(tauri_json_data))
-
+  if (process.argv.slice(2)) {
+    let tag = `${process.argv.slice(2)}`.substring(1)
+    if (tag) {
+      const tauri_json = path.join(__dirname, '../', 'src-tauri/tauri.conf.json')
+      const tauri_json_data = JSON.parse(fs.readFileSync(tauri_json, 'utf-8'))
+      tauri_json_data.package.version = `${tag || '0.0.1'}`
+      // tauri_json_data.tauri.updater.endpoints = [config.serviceUrl + 'update.json']
+      fs.writeFileSync(tauri_json, JSON.stringify(tauri_json_data))
+    }
+  }
   let arg = ''
   if (platform === 'darwin') {
     arg = 'mac'
