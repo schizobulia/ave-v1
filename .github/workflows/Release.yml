@@ -36,12 +36,12 @@ jobs:
       - run: node script/upload.js ${{ github.event.release.tag_name }}
       - name: Upload release (Windows)
         if: github.event.release.tag_name && matrix.platform == 'windows-latest'
-        run: gh release upload ${{ github.event.release.tag_name }} src-tauri/target/release/bundle/msi/ave_${{ github.event.release.tag_name }}_x64.en-US.msi
+        run: gh release upload ${{ github.event.release.tag_name }} src-tauri/target/release/bundle/msi/ave_${{ github.event.release.tag_name#v }}_x64_en-US.msi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Upload release (macOS)
         if: github.event.release.tag_name && matrix.platform == 'macos-latest'
-        run: gh release upload ${{ github.event.release.tag_name }} src-tauri/target/release/bundle/dmg/ave_${{ github.event.release.tag_name }}_x64.dmg
+        run: gh release upload ${{ github.event.release.tag_name }} src-tauri/target/release/bundle/dmg/ave_${{ github.event.release.tag_name#v }}_x64.dmg
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
