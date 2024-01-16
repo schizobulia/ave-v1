@@ -7,8 +7,9 @@
     import { basename, sep } from "@tauri-apps/api/path";
     import Swal from "sweetalert2";
     import { downloadDirPathStore } from "../store";
+    import DownloadDirectory from './DownloadDirectoryPath.svelte';
     // Define constants and variables
-    const positionOptions = ["左上", "左下", "右上", "右下"];
+    const positionOptions = ["铺满", "左上", "左下", "右上", "右下"];
     let selectedPosition = positionOptions[0];
     let selectedPaths = [];
     let downloadDirectoryPath = "";
@@ -62,6 +63,8 @@
                 position = "TopRight";
             } else if (selectedPosition === "右下") {
                 position = "BottomRight";
+            } else if (selectedPosition === "铺满") {
+                position = "Tiled";
             }
             const outputFile =
                 downloadDirectoryPath + sep + (await basename(filePath));
@@ -140,7 +143,9 @@
     >
         开始
     </Button>
+
     <div style="margin-top: 30px;" />
+    <DownloadDirectory {downloadDirectoryPath} />
 </main>
 
 <style>

@@ -5,8 +5,9 @@
   import { PdfTool } from '../utils/pdf';
   import { downloadDirPathStore } from '../store';
   import { join} from "@tauri-apps/api/path";
+  import DownloadDirectory from './DownloadDirectoryPath.svelte';
   let files = []
-  let downloadDirPath = ''
+  let downloadDirectoryPath = ''
   async function getPdf() {
     const selectedPath = await open({
       multiple: true,
@@ -29,7 +30,7 @@
 
   function init() {
     downloadDirPathStore.subscribe(value => {
-		  downloadDirPath = decodeURIComponent(value);
+		  downloadDirectoryPath = decodeURIComponent(value);
 	  });
   }
   init()
@@ -37,7 +38,7 @@
     const input = files.map((ele) => {
       return ele.name
     })
-    new PdfTool(input, await join(downloadDirPath, 'output.pdf')).pdfMerge()
+    new PdfTool(input, await join(downloadDirectoryPath, 'output.pdf')).pdfMerge()
   }
 
   function deletePdf() {
@@ -57,26 +58,26 @@
   }
 </script>
 
-
-<div class="pdf-content">
-  <div class="list">
-    {#each files as f, i}
-      <div class="item {f.select ? 'select' : ''}" on:click={selectItem.bind(this, i)}>
-        {f.name}
-      </div>
-    {/each}
-
+<main>
+  <div class="pdf-content">
+    <div class="list">
+      {#each files as f, i}
+        <div class="item {f.select ? 'select' : ''}" on:click={selectItem.bind(this, i)}>
+          {f.name}
+        </div>
+      {/each}
+    <DownloadDirectory {downloadDirectoryPath} />
+    <Wrapper>
+      <div class="add action" on:click={getPdf}></div>
+    <Tooltip>可单选、多选，多次选择</Tooltip>
+    </Wrapper>
+    <div class="start action" on:click={start}></div>
+    <Wrapper>
+      <div class="delete action" on:click={deletePdf}></div>
+      <Tooltip>删除选中的文件</Tooltip>
+    </Wrapper>
   </div>
-  <Wrapper>
-    <div class="add action" on:click={getPdf}></div>
-  <Tooltip>可单选、多选，多次选择</Tooltip>
-  </Wrapper>
-  <div class="start action" on:click={start}></div>
-  <Wrapper>
-    <div class="delete action" on:click={deletePdf}></div>
-    <Tooltip>删除选中的文件</Tooltip>
-  </Wrapper>
-</div>
+</main>
 
 <style>
   .pdf-content {

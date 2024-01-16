@@ -104,8 +104,8 @@
       <!-- <Button variant="raised" style="width: 40%;" class="button-shaped-round" on:click={openFFmpegDir}>
         获取ffmpeg安装目录
       </Button> -->
-      <Button variant="raised" style="width: 40%;" class="button-shaped-round" on:click={openDownloadDirPath}>
-        设置安装目录
+      <Button variant="raised" style="width: 50%;" class="button-shaped-round" on:click={openDownloadDirPath}>
+        设置安装和文件保存的目录
       </Button>
     </div>
   </Content>

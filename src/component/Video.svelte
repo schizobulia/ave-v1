@@ -16,6 +16,7 @@
   import { FFPlayer } from "../utils/ffplay";
   import Swal from "sweetalert2";
   import { downloadDirPathStore } from '../store';
+  import DownloadDirectory from './DownloadDirectoryPath.svelte';
   let videoExts = [
     "MP4",
     "MPEG",
@@ -56,7 +57,7 @@
   let filesProgress = [
     // { file: 'xxx', progress: 0.3, taskId: new Date().getTime() }
   ];
-  let downloadDirPath = ''
+  let downloadDirectoryPath = ''
   async function select_video() {
     if (!videoExt) {
       openDialog = true;
@@ -87,7 +88,7 @@
         taskId: id,
         child: null,
       });
-      let outputFile = downloadDirPath + sep + (await basename(file));
+      let outputFile = downloadDirectoryPath + sep + (await basename(file));
       // @ts-ignore
       await getMetadata(file, async (meta: any) => {
         outputFile =
@@ -122,7 +123,7 @@
 
   function init() {
     downloadDirPathStore.subscribe(value => {
-		  downloadDirPath = decodeURIComponent(value);
+		  downloadDirectoryPath = decodeURIComponent(value);
 	  });
   }
 
@@ -137,7 +138,7 @@
   async function player_video(file: string, id: number) {
     const taskIndex = getTaskVideo(id);
     if (filesProgress[taskIndex] && filesProgress[taskIndex].child.status) {
-      const playerFile = await join(downloadDirPath, file);
+      const playerFile = await join(downloadDirectoryPath, file);
       new FFPlayer(playerFile).play();
     } else {
       Swal.fire({
@@ -226,10 +227,7 @@
       {/each}
     </List>
   </div>
-  <!-- <div style="position: fixed; bottom: 20px; right: 10px;cursor: pointer;width: 450px; overflow: hidden;text-align: right;height: 20px; word-break: break-all;
-  text-overflow: ellipsis;white-space: nowrap;">
-    文件保存地址: {downloadDirPath}
-  </div> -->
+  <DownloadDirectory {downloadDirectoryPath} />
   <Dialog
     bind:open={openDialog}
     aria-labelledby="simple-title"

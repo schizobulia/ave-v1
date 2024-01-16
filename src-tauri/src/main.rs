@@ -2,7 +2,7 @@
     all(not(debug_assertions), target_os = "windows"),
     windows_subsystem = "windows"
 )]
-use image::{GenericImageView, DynamicImage, imageops};
+use image::{GenericImageView, DynamicImage, GenericImage, imageops};
 use serde::Deserialize;
 
 #[derive(Deserialize)]
@@ -11,51 +11,65 @@ enum WatermarkPosition {
     TopRight,
     BottomLeft,
     BottomRight,
+    Tiled
+}
+
+fn adjust_alpha(img: &mut DynamicImage, alpha: f32) {
+    let (width, height) = img.dimensions();
+    for x in 0..width {
+        for y in 0..height {
+            let mut pixel = img.get_pixel(x, y);
+            pixel[3] = (pixel[3] as f32 * alpha) as u8;
+            img.put_pixel(x, y, pixel);
+        }
+    }
 }
 
 // 定义一个函数，添加水印图片到原始图片上
 #[tauri::command]
 fn add_watermark(
-    img_path: &str, // 原始图片的路径
-    watermark_path: &str, // 水印图片的路径
-    contrast: f32, // 水印图片的透明度
-    scale: f32, // 水印图片的缩放比例
-    position: WatermarkPosition, // 水印图片的位置
-    output_path: &str, // 输出图片的路径
-){
-    // 打开原始图片和水印图片
+    img_path: &str,
+    watermark_path: &str,
+    contrast: f32,
+    scale: f32,
+    position: WatermarkPosition,
+    output_path: &str,
+) {
     let mut img = image::open(img_path).unwrap();
     let mut watermark: DynamicImage = image::open(watermark_path).unwrap();
-
-    // 设置水印图片的透明度
+    adjust_alpha(&mut watermark, 0.3);
     let a = watermark.adjust_contrast(contrast);
 
-    // 获取原始图片和水印图片的尺寸
     let (width, height) = img.dimensions();
 
-    // 计算水印图片的新尺寸，为原图的一定比例
     let new_w_width = (width as f32 * scale) as u32;
     let new_w_height = (height as f32 * scale) as u32;
 
-    // 使用resize函数来缩放水印图片
     let a = imageops::resize(&a, new_w_width, new_w_height, imageops::FilterType::Lanczos3);
 
-    // 计算边距大小，为原图的百分之一
     let margin = (width as f32 * 0.01) as u32;
 
-    // 根据水印图片的位置来计算它的坐标
-    let (x, y) = match position {
-        WatermarkPosition::TopLeft => (margin, margin),
-        WatermarkPosition::TopRight => (width - new_w_width - margin, margin),
-        WatermarkPosition::BottomLeft => (margin, height - new_w_height - margin),
-        WatermarkPosition::BottomRight => (width - new_w_width - margin, height - new_w_height - margin),
-    };
+    match position {
+        WatermarkPosition::TopLeft => imageops::overlay(&mut img, &a, margin.into(), margin.into()),
+        WatermarkPosition::TopRight => imageops::overlay(&mut img, &a, (width - new_w_width - margin).into(), margin.into()),
+        WatermarkPosition::BottomLeft => imageops::overlay(&mut img, &a, margin.into(), (height - new_w_height - margin).into()),
+        WatermarkPosition::BottomRight => imageops::overlay(&mut img, &a, (width - new_w_width - margin).into(), (height - new_w_height - margin).into()),
+        WatermarkPosition::Tiled => {
+            let num_rows = 3; // 这里是您想要的固定行数
+            let num_cols = 3; // 这里是您想要的固定列数
+            let step_x = width / (num_cols as u32 + 1);
+            let step_y = height / (num_rows as u32 + 1);
+            for i in 0..num_rows {
+                for j in 0..num_cols {
+                    let x = (j as u32 + 1) * step_x - new_w_width / 2;
+                    let y = (i as u32 + 1) * step_y - new_w_height / 2;
+                    imageops::overlay(&mut img, &a, x.into(), y.into());
+                }
+            }
+        }
+    }
 
-    // 将水印图片添加到原始图片上
-    imageops::overlay(&mut img, &a, x.into(), y.into());
-
-    // 保存添加了水印的图片
-    img.save(output_path);
+    img.save(output_path).unwrap();
 }
 
 
