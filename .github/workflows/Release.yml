@@ -34,9 +34,14 @@ jobs:
       - run: node script/ffmpeg.js ${{ github.event.release.tag_name }}
       - uses: tauri-apps/tauri-action@v0
       - run: node script/upload.js ${{ github.event.release.tag_name }}
-      - name: Upload release
-        if: github.event.release.tag_name
-        run: gh release upload ${{ github.event.release.tag_name }} src-tauri/target/release/bundle/${{ runner.os == 'Windows' && 'msi' || 'dmg' }}/ave_${{ github.event.release.tag_name }}_x64.${{ runner.os == 'Windows' && 'en-US.msi' || 'dmg' }}
+      - name: Upload release (Windows)
+        if: github.event.release.tag_name && matrix.platform == 'windows-latest'
+        run: gh release upload ${{ github.event.release.tag_name }} src-tauri/target/release/bundle/msi/ave_${{ github.event.release.tag_name }}_x64.en-US.msi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Upload release (macOS)
+        if: github.event.release.tag_name && matrix.platform == 'macos-latest'
+        run: gh release upload ${{ github.event.release.tag_name }} src-tauri/target/release/bundle/dmg/ave_${{ github.event.release.tag_name }}_x64.dmg
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
