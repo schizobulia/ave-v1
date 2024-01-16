@@ -2,7 +2,7 @@
     all(not(debug_assertions), target_os = "windows"),
     windows_subsystem = "windows"
 )]
-use image::{GenericImageView, DynamicImage, GenericImage, imageops};
+use image::{GenericImageView, DynamicImage, GenericImage, ImageBuffer, imageops};
 use serde::Deserialize;
 
 #[derive(Deserialize)]
@@ -72,10 +72,55 @@ fn add_watermark(
     img.save(output_path).unwrap();
 }
 
+#[tauri::command]
+fn merge_images(paths: Vec<&str>, max_images_per_row: u32, padding: u32, output_path: &str) {
+    // 初始化一些变量来存储新图片的尺寸
+    let mut total_width = 0;
+    let mut total_height = 0;
+    let mut max_width = 0;
+    let mut max_height = 0;
+
+    // 首先，我们需要遍历所有的图片来确定新图片的尺寸
+    for (i, path) in paths.iter().enumerate() {
+        let img = image::open(path).unwrap();
+        let (width, height) = img.dimensions();
+        if i as u32 % max_images_per_row == 0 {
+            total_height += max_height;
+            max_height = 0;
+        }
+        total_width = total_width.max((width + padding) * max_images_per_row);
+        max_height = max_height.max(height);
+    }
+    total_height += max_height;
+
+    // 创建一个新的图片缓冲区
+    let mut imgbuf = ImageBuffer::new(total_width, total_height + padding * (paths.len() as u32 / max_images_per_row));
+
+    // 再次遍历所有的图片，将它们复制到新的图片缓冲区
+    let mut current_width = padding as i64;
+    let mut current_height = 0;
+    max_height = 0;
+    for (i, path) in paths.iter().enumerate() {
+        let img = image::open(path).unwrap();
+        let (_, height) = img.dimensions();
+        if i as u32 % max_images_per_row == 0 && i != 0 {
+            current_height += max_height + padding;
+            current_width = padding as i64;
+            max_height = 0;
+        }
+        imageops::replace(&mut imgbuf, &img, current_width, current_height as i64);
+        current_width += img.width() as i64 + padding as i64;
+        max_height = max_height.max(height);
+    }
+
+    // 保存新的图片
+    imgbuf.save(output_path);
+}
+
 
 fn main() {
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![add_watermark])
+        .invoke_handler(tauri::generate_handler![add_watermark, merge_images])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

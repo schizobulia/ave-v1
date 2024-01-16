@@ -36,6 +36,11 @@
       },
       "dialog": {
         "open": true
+      },
+      "fs": {
+        "all": false,
+        "readFile": true,
+        "writeFile": true
       }
     },
     "bundle": {

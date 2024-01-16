@@ -2,6 +2,7 @@
   import Video from '../component/Video.svelte';
   import Pdf from '../component/Pdf.svelte';
   import ImgWatermark from '../component/ImgWatermark.svelte';
+  import MergePictures from '../component/MergePictures.svelte';
   import { showType } from '../store';
 
   let showTypeVal;
@@ -30,7 +31,9 @@
           <img src="static/video.png" alt="">
           <div class="ave-cell">图片添加水印</div>
         </div>
-        <div class="ave-item">
+        <div class="ave-item" on:click={() => { showType.set('mergePictures') } }>
+          <img src="static/video.png" alt="">
+          <div class="ave-cell">合并图片</div>
         </div>
       </div>
     </div>
@@ -40,7 +43,10 @@
     <Pdf></Pdf>
   {:else if showTypeVal === 'imgWatermark'}
     <ImgWatermark></ImgWatermark>
+  {:else if showTypeVal === 'mergePictures'}
+    <MergePictures></MergePictures>
   {/if}
+
 </main>
 
 <style>
