@@ -34,14 +34,20 @@ jobs:
       - run: node script/ffmpeg.js ${{ github.event.release.tag_name }}
       - uses: tauri-apps/tauri-action@v0
       - run: node script/upload.js ${{ github.event.release.tag_name }}
-      - name: Upload release (Windows)
+
+      - name: Compress and Upload release (Windows)
         if: github.event.release.tag_name && matrix.platform == 'windows-latest'
-        run: gh release upload ${{ github.event.release.tag_name }} src-tauri/target/release/bundle/msi/ave_${{ github.event.release.tag_name#v }}_x64_en-US.msi
+        run: |
+          tar -czvf ave_${{ github.event.release.tag_name }}_windows.tar.gz src-tauri/target/release/bundle/msi/
+          gh release upload ${{ github.event.release.tag_name }} ave_${{ github.event.release.tag_name }}_windows.tar.gz
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Upload release (macOS)
+
+      - name: Compress and Upload release (macOS)
         if: github.event.release.tag_name && matrix.platform == 'macos-latest'
-        run: gh release upload ${{ github.event.release.tag_name }} src-tauri/target/release/bundle/dmg/ave_${{ github.event.release.tag_name#v }}_x64.dmg
+        run: |
+          tar -czvf ave_${{ github.event.release.tag_name }}_macos.tar.gz src-tauri/target/release/bundle/dmg/
+          gh release upload ${{ github.event.release.tag_name }} ave_${{ github.event.release.tag_name }}_macos.tar.gz
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
